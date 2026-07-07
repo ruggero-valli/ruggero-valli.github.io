@@ -363,25 +363,34 @@ button:focus-visible {
   padding: var(--sp-xl) 0;
 }
 
+/*
+  --text-glow is a CSS custom property that cascades from the section down
+  to .project-split__text and .flow inside it, where it is used as the
+  centre colour of a radial gradient ::before that creates a soft glow
+  directly behind prose content. Each section background gets a visually
+  distinct glow colour:
+    black  — deep blue pool, matching the hero halo
+    navy   — saturated mid-blue, lighter and more vivid than the navy bg
+    blue   — concentrated dark blue, adds depth against the blue bg
+*/
 .section--black {
-  background: var(--bg-black); 
-    background:
-    radial-gradient(ellipse 80% 55% at 50% 50%, var(--bg-blue) 0%, transparent 60%),
+  background:
+    /*radial-gradient(ellipse 80% 55% at 50% 50%, var(--bg-blue) 0%, transparent 60%),*/
     var(--bg-black);
+  --text-glow: var(--bg-blue);
 }
 
-/* Navy and blue sections each carry a faint radial glow from opposing corners.
-   This mirrors the hero's depth treatment at lower intensity, and the
-   alternating corners give a sense of directionality as you scroll. */
 .section--navy {
   background:
-    radial-gradient(ellipse 80% 55% at 50% 50%, var(--bg-black) 0%, transparent 60%),
+    /*radial-gradient(ellipse 80% 55% at 50% 50%, var(--bg-black) 0%, transparent 60%),*/
     var(--bg-navy);
+  --text-glow: rgb(from var(--bg-glow) r g b / 0.3);
 }
 .section--blue {
   background:
-    radial-gradient(ellipse 80% 55% at 50% 50%, rgb(from var(--accent2) r g b / 0.2) 0%, transparent 60%),
+    /*radial-gradient(ellipse 80% 55% at 50% 50%, rgb(from var(--accent2) r g b / 0.2) 0%, transparent 60%),*/
     var(--bg-blue);
+  --text-glow: rgb(from var(--accent2) r g b / 0.2);
 }
 
 /* Parallax image section */
@@ -496,7 +505,22 @@ p { max-width: 72ch; }
   gap: var(--sp-xl);
 }
 
-.hero__photo-wrap { flex: 0 0 auto; }
+.hero__photo-wrap {
+  flex: 0 0 auto;
+  position: relative;    /* anchor for the glow ::before */
+}
+
+.hero__photo-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-lg);
+  box-shadow: 0 0 80px 24px rgb(from var(--bg-glow) r g b / 0.5);
+  animation: glow-pulse 6s ease-in-out infinite;
+  will-change: opacity;
+  transform: translateZ(0);
+  pointer-events: none;
+}
 
 .hero__photo {
   width: 340px;
@@ -505,12 +529,12 @@ p { max-width: 72ch; }
   object-fit: cover;
   object-position: center 40%;
   border: 1px solid var(--border);
-  animation: glow-pulse 6s ease-in-out infinite;
+  position: relative;    /* stay above the ::before glow */
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 40px rgb(from var(--bg-glow) r g b / 0.18);}
-  50%       { box-shadow: 0 0 80px rgb(from var(--bg-glow) r 0 b / 0.38) }
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 1;    }
 }
 
 .hero__text { flex: 1; }
@@ -671,13 +695,7 @@ p { max-width: 72ch; }
   flex-direction: column;
   align-items: center;
   gap: var(--sp-sm);
-  /* Scale up from slightly small — gives the image a sense of arrival */
-  transform: scale(0.93);
-  transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
-}
-
-.lightbox.is-open .lightbox__inner {
-  transform: scale(1);
+  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .lightbox__img {
@@ -773,6 +791,59 @@ p { max-width: 72ch; }
 .project-split__images {
   flex: 1 1 0;
   min-width: 0;
+}
+
+/*
+  Text halo — a radial glow behind the prose column only, not the whole section.
+  isolation:isolate creates a stacking context so z-index:-1 on ::before sits
+  above the section background but below all text content within this element.
+  The --text-glow colour is set on each .section--* and cascades here.
+*/
+.project-split__text {
+  position: relative;
+  isolation: isolate;
+}
+
+.project-split__text::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 120% 150% at 50% 35%,
+    var(--text-glow, transparent) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/*
+  .flow is used as the prose wrapper in CV and Talks sections.
+  Same glow treatment as .project-split__text.
+*/
+.flow {
+  position: relative;
+  isolation: isolate;
+}
+
+.flow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 120% 150% at 50% 35%,
+    var(--text-glow, transparent) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Clearfix — contains floated .deco-photo images */
+.flow::after {
+  content: '';
+  display: table;
+  clear: both;
 }
 
 /* Images stack vertically inside their column */
@@ -1193,7 +1264,7 @@ p { max-width: 72ch; }
     transition-duration: 0.01ms !important;
   }
   html { scroll-behavior: auto; }
-  .hero__photo { animation: none; }
+  .hero__photo-wrap::before { animation: none; }
   .gallery-item img { transition: none; }
   .section--parallax { background-attachment: scroll; }
 }

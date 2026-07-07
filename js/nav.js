@@ -49,6 +49,19 @@
         hamburger.focus();
       }
     });
+
+    /* Close on swipe-up */
+    var touchStartY = 0;
+    nav.addEventListener('touchstart', function (e) {
+      touchStartY = e.changedTouches[0].clientY;
+    }, { passive: true });
+    nav.addEventListener('touchend', function (e) {
+      var dy = touchStartY - e.changedTouches[0].clientY;
+      if (dy > 40) {          /* upward swipe of ≥ 40 px */
+        closeMenu();
+        hamburger.focus();
+      }
+    }, { passive: true });
   }
 
 
@@ -80,7 +93,8 @@
   /* ── Header: deepen blur once user scrolls past the hero ───── */
   /*
      Adds .site-header--scrolled when the page has scrolled more
-     than 60 px
+     than 60 px, so the nav feels weightier as content
+     passes underneath it.
   */
   var header = document.querySelector('.site-header');
   if (header) {
