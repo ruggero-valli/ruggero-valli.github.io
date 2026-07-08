@@ -22,7 +22,6 @@
 
   <!-- Skip link (WCAG) -->
   <a class="skip-link" href="#main">Skip to main content</a>
-  
 
   <!-- ══ HEADER ══════════════════════════════════════════════ -->
   <header class="site-header" role="banner">
@@ -281,40 +280,46 @@
     </section>
 
     <!-- ── Section 4: Gravity simulator ────────────────────── -->
-    <section class="section section--black" aria-labelledby="gravity-heading">
+    <section class="section section--black section--gravity" aria-labelledby="gravity-heading">
       <div class="container">
         <h2 class="section__title" id="gravity-heading">Gravity Lab</h2>
 
-        <div class="container">
+        <div class="gravity__wrap">
 
+          <!-- Controls bar -->
           <div class="gravity__toolbar">
-              <button id="pauseBtn" class="btn btn--outline">Pause</button>
-              <button id="resetBtn" class="btn btn--outline">Reset</button>
-              <button id="comBtn" class="btn btn--outline">CoM Frame</button>
 
-              <label>Mass
+            <!-- Action buttons -->
+            <button id="pauseBtn" class="gravity__btn">Pause</button>
+            <button id="resetBtn" class="gravity__btn">Reset</button>
+            <button id="comBtn"   class="gravity__btn">CoM Frame</button>
 
-                  <input
-                      id="massSlider"
-                      class="gravity__slider"
-                      type="range"
-                      min="1"
-                      max="200"
-                      value="10">
+            <!-- Mass readout -->
+            <label class="gravity__mass-label">
+              Mass
+              <input id="massSlider" class="gravity__slider"
+                     type="range" min="1" max="200" value="10" />
+              <span id="massValue" class="gravity__mass-value">10</span>
+            </label>
 
-                  <span id="massValue">10</span>
+            <div class="gravity__hints" aria-label="Controls guide">
+              <span>L🖱️ drag — launch</span>
+              <span>R🖱️ click — delete</span>
+              <span>⇧+L🖱️ drag — pan</span>
+              <span>Scroll — zoom</span>
+            </div>
 
-              </label>
-          </div>
+          </div><!-- /.gravity__toolbar -->
 
           <canvas id="canvas" class="gravity__canvas"></canvas>
 
-          <script src="js/gravity/gravity.js"></script>
-          <script src="js/gravity/app.js"></script>
-
-        </div>
+        </div><!-- /.gravity__wrap -->
 
       </div>
+
+      <script src="js/gravity/gravity.js"></script>
+      <script src="js/gravity/app.js"></script>
+
     </section>
 
   </main>

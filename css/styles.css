@@ -798,6 +798,8 @@ p { max-width: 72ch; }
   isolation:isolate creates a stacking context so z-index:-1 on ::before sits
   above the section background but below all text content within this element.
   The --text-glow colour is set on each .section--* and cascades here.
+  Negative inset lets the gradient bleed beyond the element's own box so
+  it doesn't get clipped at the column edge.
 */
 .project-split__text {
   position: relative;
@@ -807,11 +809,11 @@ p { max-width: 72ch; }
 .project-split__text::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -20% -100%;
   background: radial-gradient(
-    ellipse 120% 150% at 50% 35%,
+    ellipse 30% 50% at 50% 50%,
     var(--text-glow, transparent) 0%,
-    transparent 65%
+    transparent 100%
   );
   pointer-events: none;
   z-index: -1;
@@ -829,11 +831,11 @@ p { max-width: 72ch; }
 .flow::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -40% -30%;
   background: radial-gradient(
-    ellipse 120% 150% at 50% 35%,
+    ellipse 60% 50% at 50% 30%,
     var(--text-glow, transparent) 0%,
-    transparent 65%
+    transparent 100%
   );
   pointer-events: none;
   z-index: -1;
@@ -1061,67 +1063,151 @@ p { max-width: 72ch; }
 
 /* ── 19. Gravity simulation ─────────────────────────────────── */
 
-.gravity__canvas{
-  display:block;
-  width:100%;
-  height:100%;
-  border-radius: var(--r-lg);
+/* Wrapper stacks toolbar + canvas vertically */
+.gravity__wrap {
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+}
+
+/* ── Toolbar ── */
+/*
+   Sits above the canvas in normal flow — no overlap.
+   Rounded only at the top; the canvas connects flush below.
+   Background matches the canvas colour (--bg-navy) so the two
+   read as a single widget.
+*/
+.gravity__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 0.55rem var(--sp-sm);
+  background: var(--bg-navy);
   border: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,.06); /* subtle inner divider */
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  flex-shrink: 0;
 }
 
-.gravity__toolbar{
-  position:absolute;
-  display:flex;
-  gap:15px;
-  align-items:center;
-  padding:10px;
-  border-radius: var(--r-lg);
-  border: 1px solid var(--border);
-  background:rgb(from var(--bg-black) r g b / 0.5);
-}
-
-.gravity__btn{
-  background: transparent;
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.gravity__slider{
-  width:150px;
-}
-
-.gravitbtn {
+/* ── Toolbar buttons (secondary — softer than CTA buttons) ── */
+/*
+   Less padding, dimmer border, no lift/glow on hover.
+   Border-radius uses --r-sm (rectangular-ish) rather than the
+   full-pill of .btn--outline, giving the toolbar a distinct
+   "instrument panel" character vs the primary CTAs.
+*/
+.gravity__btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 2rem;
-  border-radius: var(--r-full);
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--r-sm);
   font-family: var(--font);
-  font-size: var(--sz-md);
-  font-weight: 600;
+  font-size: var(--sz-sm);
+  font-weight: 400;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
   cursor: pointer;
-  border: 2px solid transparent;
-  text-decoration: none;
-  transition: background var(--ease), color var(--ease), border-color var(--ease),
-              transform 0.15s ease, box-shadow var(--ease);
+  transition: color var(--ease), border-color var(--ease), background var(--ease);
   user-select: none;
   white-space: nowrap;
 }
-.btn:active { transform: scale(0.95) translateY(0) !important; }
 
-.btn--outline {
-  background: transparent;
-  border-color: var(--accent);
-  color: var(--accent);
+.gravity__btn:hover {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: rgba(255,255,255,.05);
 }
-.btn--outline:hover {
+
+/* Active state — e.g. when simulation is paused */
+.gravity__btn.is-active {
+  color: var(--accent);
+  border-color: rgba(255,255,255,.35);
+}
+
+/* ── Mass label + slider ── */
+.gravity__mass-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: var(--sp-sm);
+  border-left: 1px solid var(--border);
+  font-size: var(--sz-xs);
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gravity__mass-value {
+  font-size: var(--sz-sm);
+  font-variant-numeric: tabular-nums; /* fixed-width digits for the readout */
+  min-width: 2.5ch;
+  color: var(--text);
+  text-align: right;
+}
+
+/* Custom range slider */
+.gravity__slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 110px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+
+.gravity__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  border: none;
+  transition: background var(--ease), transform var(--ease);
+}
+.gravity__slider:hover::-webkit-slider-thumb {
   background: var(--accent);
-  color: var(--bg-black);
-  transform: translateY(-2px);
-  box-shadow:
-    0 4px 16px rgb(from var(--accent) r g b / 0.14),
-    0 1px  6px rgb(from var(--accent) r g b / 0.10);
+  transform: scale(1.25);
+}
+
+.gravity__slider::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  border: none;
+  cursor: pointer;
+}
+.gravity__slider:hover::-moz-range-thumb {
+  background: var(--accent);
+}
+
+/* ── Usage hints — right-aligned ── */
+.gravity__hints {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-left: var(--sp-sm);
+  border-left: 1px solid var(--border);
+  font-size: var(--sz-xs);
+  color: var(--text-muted);
+  opacity: 0.65;
+  white-space: nowrap;
+}
+
+/* ── Canvas ── */
+.gravity__canvas {
+  display: block;
+  flex: 1;            /* fill remaining height in .gravity__wrap */
+  width: 100%;
+  min-height: 0;      /* required for flex children to shrink correctly */
+  border: 1px solid var(--border);
+  border-top: none;   /* toolbar handles the top edge */
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
 }
 
 /* ── 20. Footer ───────────────────────────────────────────── */
@@ -1207,6 +1293,9 @@ p { max-width: 72ch; }
   .gallery-item--wide,
   .gallery-item--tall,
   .gallery-item--big  { grid-column: span 1; grid-row: span 1; }
+
+  /* Gravity simulator — hide entirely on small screens */
+  .section--gravity { display: none; }
 }
 
 @media (max-width: 760px) {
