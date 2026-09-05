@@ -76,9 +76,23 @@
                  target="_blank" rel="noopener noreferrer">
                 Institute of Science and Technology Austria</a>
             </p>
+            <!--
+              Email address is shown as the link label and encoded using HTML
+              character references (&#64; = @, &#46; = .) so it renders
+              correctly in every browser without JavaScript, while remaining
+              opaque to naive regex-based scrapers.
+            -->
             <a class="btn btn--outline"
-              href='mailto: Ruggero.Valli@ist.ac.at'>
-                Ruggero.Valli@ist.ac.at
+               href="mailto:Ruggero&#46;Valli&#64;ist&#46;ac&#46;at">
+              <svg width="15" height="12" viewBox="0 0 15 12" fill="none"
+                   aria-hidden="true" focusable="false" style="flex-shrink:0">
+                <rect x=".6" y=".6" width="13.8" height="10.8" rx="1.4"
+                      stroke="currentColor" stroke-width="1.1"/>
+                <polyline points="0.6,1.8 7.5,7 14.4,1.8"
+                          stroke="currentColor" stroke-width="1.1"
+                          fill="none" stroke-linejoin="round"/>
+              </svg>
+              Ruggero&#46;Valli&#64;ist&#46;ac&#46;at
             </a>
           </div>
 
@@ -311,6 +325,9 @@
 
       </div>
 
+      <script src="js/gravity/gravity.js"></script>
+      <script src="js/gravity/app.js"></script>
+
     </section>
 
   </main>
@@ -329,8 +346,6 @@
   <!-- Scripts -->
   <script src="js/nav.js"></script>
   <script src="js/gallery.js"></script>
-  <script src="js/gravity/gravity.js"></script>
-  <script src="js/gravity/app.js"></script>
 
 </body>
 </html>
